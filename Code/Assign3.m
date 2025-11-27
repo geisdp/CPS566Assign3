@@ -18,8 +18,7 @@ bw_comp = imcomplement(bw_template); % Background should be black and foreground
 
 [h, w] = size(bw_template);
 temp_count = 0;
-% Limit to 100 components in case the imbinarize creates too many
-% components.
+% Limit to 100 components in case bwlabel() creates too many components.
 for i=1:min(num, 100)
     [r,c] = find(L == i);
     min_r = min(r);
