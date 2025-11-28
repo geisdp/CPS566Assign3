@@ -3,7 +3,7 @@ close all
 clc
 
 bin_threshold = 0.5;
-match_scales = [0.5]; %[2.0, 2.5, 3.0];
+match_scales = [2.0, 2.5, 3.0];
 testFolder = '.\tests';
 images = dir(fullfile(testFolder, '*.jpg'));
 min_size = 40;
