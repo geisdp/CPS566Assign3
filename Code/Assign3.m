@@ -66,4 +66,51 @@ for i=1:length(images)
 
     %% Step 2: Apply Chamfer Distance Matching
     matches = chamferMatch(img_chamfer, templates, match_scales);
+    
+    %% Step 3: Color Verification
+    
+    % color class for each template index:
+    % 1 = red sign (stop, yoeld)
+    % 2 = white/blck (speed limit, one way)
+    % 3 = green sign (pedestrian crossing)
+
+    templateColorClass = [1 2 3 2 2 1];
+    
+    [img_h, img_w] = size(img_gray);
+
+    verified_matches = {};
+    v_idx = 1;
+
+    for k=1:numel(matches)
+        
+        info = matches{k}; % [templateIdx, scale, row, col, score]
+        t_idx = info(1);
+        scale = info(2);
+        r1 = round(info(3));
+        c1 = round(info(4));
+        score = info(5);
+        color_class = templateColorClass(t_idx);
+
+        % Recompute scaled template size to know the bounding box size
+        templ = templates{t_idx};
+        templ_scaled = imresize(templ, scale);
+        [t_h, t_w] = size(templ_scaled);
+
+        % Clamp bounding box to image borders
+        r1 = max(1, r1); % Top bounding
+        c1 = max(1, c1); % Left bounding
+        r2 = min(img_h, r1+t_h-1); % Bottom bounding
+        c2 = min(img_w, c1+t_w-1); % Right bounding
+
+        % Extract ROI from original RGB image
+        roi =  img(r1:r2, c1:c2, :);
+
+        % Check if this ROI has the expected color
+        is_same = verifyColorByClass(roi, color_class);
+
+        if is_same
+            verified_matches{v_idx} = [t_idx, scale, r1, c1, score];
+            v_idx = v_idx + 1;
+        end
+    end
 end
