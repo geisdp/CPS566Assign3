@@ -3,48 +3,29 @@ close all
 clc
 
 bin_threshold = 0.5;
-match_scales = [2.0, 2.5, 3.0];
+match_scales = [2.0, 2.5, 3.0, 3.5];
 testFolder = '.\tests';
 images = dir(fullfile(testFolder, '*.jpg'));
 min_size = 40;
+template_width = 100;
 
 % First, process all the signs in the sign template image
 img_template = imread('templates.png');
 img_template_gray = rgb2gray(img_template);
 figure, imshow(img_template_gray), title('BW Original Templates');
-bw_template = imbinarize(img_template_gray, bin_threshold);
-bw_comp = imcomplement(bw_template); % Background should be black and foreground should be white
-[L, num] = bwlabel(bw_comp, 8);
 
-[h, w] = size(bw_template);
-temp_count = 0;
-% Limit to 100 components in case bwlabel() creates too many components.
-for i=1:min(num, 100)
-    [r,c] = find(L == i);
-    min_r = min(r);
-    max_r = max(r);
-    min_c = min(c);
-    max_c = max(c);
-    r = r - min_r + 1;
-    c = c - min_c + 1;
-    height = max_r - min_r + 1;
-    width = max_c - min_c + 1;
-    % Only keep labeled components that are of the minimum size
-    if height>=min_size && width>=min_size
-        % Make the template image slightly largely than the actual sign in
-        % order to catch the outer edges.
-        border_pixels = 2;
-        new_img = zeros(height+2*border_pixels, width+2*border_pixels);
-        for j=1:length(r)
-            new_img(r(j)+border_pixels, c(j)+border_pixels) = border_pixels;
-        end
-        temp_count = temp_count + 1;
-        temp_edge = edge(new_img, "Canny", 0.3);
-        templates{temp_count} = temp_edge;
-        %figure, imshow(temp_edge), title("template edges "+string(temp_count));
-        %filename="../template_"+string(temp_count)+".png";
-        %imwrite(temp_edge, filename);
-    end
+[h, w] = size(img_template_gray);
+num_templates = int16(w / template_width);
+for i=1:num_templates
+    % Make the template image slightly largely than the actual sign in
+    % order to catch the outer edges.
+    border_pixels = 0;
+    new_img = zeros(h+2*border_pixels, template_width+2*border_pixels);
+    new_img(border_pixels+1:h+border_pixels, border_pixels+1:template_width+border_pixels) = img_template_gray(1:h, template_width*(i-1)+1:template_width*i);
+    temp_edge = edge(new_img, "Canny", 0.1);
+    temp_edge = cropImage(temp_edge);
+    templates{i} = temp_edge;
+    %figure; imshow(temp_edge); title('Template ' + string(i));
 end
 
 for i=1:length(images)
@@ -57,7 +38,17 @@ for i=1:length(images)
     %% Step 1: Compute the Distance Transform
     img_gray = rgb2gray(img);
 
-    img_edge = edge(img_gray, "Canny", [.1 .4], 1);%.3);
+    if i == 1
+        img_edge = edge(img_gray, "Canny", [.1 .4], 1);
+    elseif i == 2
+        img_edge = edge(img_gray, "Canny", [.1 .3], 1);
+    elseif i == 3
+        img_edge = edge(img_gray, "Canny", [.1 .5], 1.5);
+    elseif i == 4
+        img_edge = edge(img_gray, "Canny", [.2 .4], 1);
+    elseif i == 5
+        img_edge = edge(img_gray, "Canny", [.1 .5], 1);
+    end
     figure; imshow(img_edge); title('Canny Edge Detection');
 
     % Calculate the chamfer distance array
@@ -74,7 +65,7 @@ for i=1:length(images)
     % 2 = white/blck (speed limit, one way)
     % 3 = green sign (pedestrian crossing)
 
-    templateColorClass = [1 2 3 2 2 1];
+    templateColorClass = [1 2 3 3 2 1];
     
     [img_h, img_w] = size(img_gray);
 

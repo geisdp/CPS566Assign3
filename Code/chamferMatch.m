@@ -24,6 +24,7 @@ function [matches] = chamferMatch(img_dist, templates_img_gray, match_scales)
 
     % Loop through each template
     for i_image = 1:numel(templates_img_gray)
+        fprintf('   Template #%d scale factor ', i_image);
         template = templates_img_gray{i_image};
     
         % Loop through all the scales to try to find a match
@@ -33,6 +34,11 @@ function [matches] = chamferMatch(img_dist, templates_img_gray, match_scales)
 
         % Loop through each scale factor
         for scale=match_scales
+            if scale ~= match_scales(end)
+                fprintf('%f, ', scale);
+            else
+                fprintf('%f\n', scale);
+            end
             % Resize the template based on the scale
             temp_scaled = imresize(template, scale);
             [t_rows, t_cols] = size(temp_scaled);
