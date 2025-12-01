@@ -7,7 +7,7 @@ function [matches] = chamferMatch(img_dist, templates_img_gray, match_scales)
     arguments (Input)
         img_dist (:,:) double    % Input mage that has been through chamferDist()
         templates_img_gray {}    % List of street sign templates
-        match_scales double      % List of scale factors to be applised to each sign template
+        match_scales (1,:) double      % List of scale factors to be applised to each sign template
     end
     
     arguments (Output)
