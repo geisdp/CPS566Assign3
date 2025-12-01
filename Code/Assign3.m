@@ -60,7 +60,7 @@ for i=1:length(images)
     % color class for each template index:
     % 1 = red sign (stop, yoeld)
     % 2 = white/blck (speed limit, one way)
-    % 3 = green sign (pedestrian crossing)
+    % 3 = yellow sign 
 
     templateColorClass = [1 2 3 3 2 1];
     
