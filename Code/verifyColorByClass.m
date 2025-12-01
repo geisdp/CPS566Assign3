@@ -20,8 +20,8 @@ function is_same = verifyColorByClass(roi_rgb, color_class)
 
         case 2  % white/black sign (Speed Limit, One way)
             % Bright and low saturation, allow a bit gray
-            mask = V > 0.55 & S < 0.35;
-            thr = 0.15;
+            mask = V > 0.4 & S < 0.1;
+            thr = 0.30;
 
         case 3  % yellow sign
             % yellow roughly between 0.10 and 0.18 in hue

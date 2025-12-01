@@ -96,7 +96,7 @@ for i=1:length(images)
         % Check if this ROI has the expected color
         is_same = verifyColorByClass(roi, color_class);
 
-        if is_same
+        if is_same && score < 6
             verified_matches{v_idx} = [t_idx, scale, r1, c1, score];
             v_idx = v_idx + 1;
         end
