@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-testFolder = '.\tests';
+testFolder = '.\check';
 resultFolder = '..\Result';
 images = dir(fullfile(testFolder, '*.jpg'));
 template_width = 100;
@@ -55,19 +55,19 @@ for i=1:length(images)
 
     %% Step 2: Apply Chamfer Distance Matching
     matches = chamferMatch(img_chamfer, templates, scale_factors{i});
-
+    
     %% Step 3: Color Verification
-
+    
     % color class for each template index:
     % 1 = red sign (stop, yoeld)
     % 2 = white/blck (speed limit, one way)
     % 3 = yellow sign 
 
     templateColorClass = [1 2 3 3 2 1];
-
+    
     [img_h, img_w] = size(img_gray);
 
-    verified_matches = [];
+    verified_matches = {};
     v_idx = 1;
 
     for k=1:numel(matches)
@@ -97,42 +97,30 @@ for i=1:length(images)
         is_same = verifyColorByClass(roi, color_class);
 
         if is_same && score < 6
-            verified_matches(v_idx, :) = [t_idx, scale, r1, c1, score];
+            verified_matches{v_idx} = [t_idx, scale, r1, c1, score];
             v_idx = v_idx + 1;
         end
     end
 
     %% Step 4: Draw Bounding Box and Display Result
-    % verified_matches(1, :) = [1,3,62,160,3.1948];
-    if isempty(verified_matches)
-        res = img;
-    else
-        numMatches = size(verified_matches, 1);
-        bboxes = zeros(numMatches, 4);
-        imgH = size(img,1);
-        imgW = size(img,2);
-        
-        for k = 1:numMatches
-            templateIdx = verified_matches(k, 1);
-            scaleFactor = verified_matches(k, 2);
-            x = verified_matches(k, 4);
-            y = verified_matches(k, 3);
+    numMatches = size(verified_matches, 1);
+    bboxes = zeros(numMatches, 4);
     
-            tmpl = templates{templateIdx};
-            [tmplH, tmplW] = size(tmpl);
-        
-            boxW = tmplW * scaleFactor;
-            boxH = tmplH * scaleFactor;
-        
-            x = max(1, min(x, imgW));
-            y = max(1, min(y, imgH));
-            boxW = max(0, min(boxW, imgW - x + 1));
-            boxH = max(0, min(boxH, imgH - y + 1));
+    for k = 1:numMatches
+        templateIdx = verified_matches(k, 1);
+        scaleFactor = verified_matches(k, 2);
+           
+        x = verified_matches(k, 3);   % top-left column
+        y = verified_matches(k, 4);   % top-left row
+    tmpl = templates{templateIdx};
+    [tmplH, tmplW] = size(tmpl);
     
-            bboxes(k, :) = [x, y, boxW, boxH];
-        end
-        res = insertShape(img, "Rectangle", bboxes, "Color", "red", "LineWidth", 2);
-    end
-    resPath = fullfile(resultFolder, "bbox_" + fileName);
-    imwrite(res, resPath);
+    boxW = tmplW * scaleFactor;
+    boxH = tmplH * scaleFactor;
+
+    bbox = [x, y, boxW, boxH];
+    imgWithBox = insertShape(img, "Rectangle", bbox, "Color", "red", "LineWidth", 2);
+
+    outPath = fullfile(resultFolder, "bbox_" + fileName);
+    imwrite(imgWithBox, outPath);
 end
