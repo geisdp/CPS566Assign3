@@ -32,7 +32,7 @@ for i=1:num_templates
     temp_edge = edge(new_img, "Canny", 0.1);
     temp_edge = cropImage(temp_edge);
     templates{i} = temp_edge;
-    figure; imshow(temp_edge); title('Template ' + string(i));
+    %figure; imshow(temp_edge); title('Template ' + string(i));
 end
 
 for i=1:length(images)
@@ -133,6 +133,7 @@ for i=1:length(images)
         end
         res = insertShape(img, "Rectangle", bboxes, "Color", "red", "LineWidth", 2);
     end
+    figure; imshow(res); title('Street Sign Identification Results');
     resPath = fullfile(resultFolder, "bbox_" + fileName);
     imwrite(res, resPath);
 end

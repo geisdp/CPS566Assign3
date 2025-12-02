@@ -14,5 +14,6 @@
 To run the traffic-sign detection system, perform the following steps:
 1. Unzip the project files
 2. Open MATLAB
-3. In MATLAB, open the folder
-4. Run Assign3.m
+3. Ensure that the Computer Vision Toolbox is installed.
+4. In MATLAB, open the folder
+5. Run Assign3.m
